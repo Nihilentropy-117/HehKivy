@@ -1,0 +1,2 @@
+active_embedding_model = "GTELargeEnV15"
+notes_directory = "./notes"
