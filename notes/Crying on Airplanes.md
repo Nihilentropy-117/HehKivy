@@ -1,0 +1,1 @@
+Scientists suggest that the likelihood of crying on an airplane compared to on the ground may be due to hypoxia caused by the reduced oxygen levels at high altitudes. Alternatively, it could be attributed to emotional liability related to unfamiliar surroundings, as humans tend to cry when scared to enhance emotional bonding for safety. 
