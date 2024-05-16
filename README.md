@@ -1,0 +1,1 @@
+This repository contains a program to synchronize and manage note files with embedding models. The tool processes note files, generates embeddings using various models, and stores the embeddings in a PostgreSQL database. It also includes functionality to manage embedding models and compute similarity between text samples.
