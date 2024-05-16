@@ -3,27 +3,23 @@ import os
 import hashlib
 import re
 import psycopg2
-import embedding_models
+from embedding_models import load_embedding_model
+import tomli
 
 
-def sync(model, notes_directory, status_bar):
+def sync(model, notes_directory, update_status_callback):
     vault = notes_directory.split("/")[-1]  # Extract vault name from directory path
 
     # Update status bar and print status
     def update_status(text):
         print(text)
-        status_bar.text += f"\n{text}"
+        update_status_callback(text)
 
-    # Database connection configuration
-    db_config = {
-        'database': 'wanderland',
-        'user': 'postgres',
-        'password': 'postgres',
-        'host': '10.1.10.2',
-        'port': '5432'
-    }
 
-    conn = psycopg2.connect(**db_config)  # Establish DB connection
+    with open("conf.toml", "rb") as f:
+        config = tomli.load(f)
+
+    conn = psycopg2.connect(**config["db_config"])  # Establish DB connection
     cur = conn.cursor()  # Create a cursor object
 
     # Create a table if it doesn't exist
@@ -47,16 +43,6 @@ def sync(model, notes_directory, status_bar):
         cur.execute(f"CREATE INDEX ON {vault} USING ivfflat (embedding vector_cosine_ops)")
         conn.commit()
 
-    # Load embedding model based on the name
-    def load_embedding_model(model_name):
-        if model_name == "Salesforce/SFR-Embedding-Mistral":
-            return embedding_models.LocalSFR()
-        elif model_name == "Alibaba-NLP/gte-large-en-v1.5":
-            return embedding_models.GTELargeEnV15()
-        elif model_name == "EmberV1":
-            return embedding_models.EmberV1()
-        else:
-            return embedding_models.GTELargeEnV15()
 
     # Process a file and update database
     def process_file(file_path, embedding_model):

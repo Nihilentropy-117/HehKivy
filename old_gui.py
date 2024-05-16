@@ -1,3 +1,5 @@
+import os
+
 import tomli
 import tomli_w
 from kivy.app import App
@@ -71,8 +73,10 @@ class TabSync(BaseTab):
         self.add_widget(layout)  # Add main layout to tab
 
     def sync_notes(self):
-        # Call sync function with current settings
-        syncnotes(settings["active_embedding_model"], settings["notes_directory"], self.label_output)
+        vaults = [os.path.join(root, d) for root, dirs, files in os.walk(settings["notes_directory"]) for d in dirs
+                  if not d.startswith('.')]
+        for vault in vaults:
+            syncnotes(settings["active_embedding_model"], vault, self.label_output)
 
 
 # Example Tab B with text inputs and buttons

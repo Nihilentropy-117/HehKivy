@@ -1,2 +1,11 @@
 active_embedding_model = "GTELargeEnV15"
-notes_directory = "./notes"
+notes_directory = "/home/nihil/Obsidian/"
+
+[db_config]
+database = "wanderland"
+user = "postgres"
+password = "postgres"
+host = "10.1.10.2"
+port = "5432"
+
+"cohere_api_key" = ""

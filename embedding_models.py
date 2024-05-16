@@ -1,3 +1,5 @@
+import numpy as np
+import tomli
 from numpy import ndarray
 import logging
 import torch
@@ -7,10 +9,25 @@ from torch import Tensor
 import torch.nn.functional as F
 from typing import List
 from tokenizers import Tokenizer
-
+import cohere
 # Set logging level to ERROR to suppress excessive logging
 logging.getLogger().setLevel(logging.ERROR)
 
+settings_file = "conf.toml"
+
+embedding_models_list = ["LocalSFR", "GTELargeEnV15", "EmberV1"]
+
+def load_embedding_model(model_name):
+    if model_name == "Salesforce/SFR-Embedding-Mistral":
+        return LocalSFR()
+    elif model_name == "Alibaba-NLP/gte-large-en-v1.5":
+        return GTELargeEnV15()
+    elif model_name == "EmberV1":
+        return EmberV1()
+    elif model_name == 'cohere-embed-multilingual-v3.0':
+        return cohere_API()
+    else:
+        return GTELargeEnV15()
 
 # Base class for all Embedders
 class Embedder:
@@ -103,6 +120,25 @@ class EmberV1(Embedder):
     def embed(self, text: str) -> list[Tensor] | ndarray | Tensor:
         embeddings = self.model.encode([text])  # Encode text
         return embeddings[0]  # Return embeddings
+
+class cohere_API(Embedder):
+    name = 'cohere-embed-multilingual-v3.0'
+    co = None
+    def __init__(self):
+        super().__init__()
+
+        with open(settings_file, "rb") as f:
+            settings = tomli.load(f)
+            self.cohere_api_key = settings["cohere_api_key"]
+
+        print(f"Loaded embedding model cohere-embed-multilingual-v3.0")
+
+    def embed(self, text: str) -> list[Tensor] | ndarray | Tensor:
+        co = cohere.Client(self.cohere_api_key)
+        query_emb = co.embed(texts=[text], model="embed-multilingual-v3.0", input_type="search_query",
+                             embedding_types=["int8"]).embeddings
+        query_embedding = np.asarray(query_emb.int8, dtype='int8').tolist()[0]
+        return query_embedding
 
 
 
